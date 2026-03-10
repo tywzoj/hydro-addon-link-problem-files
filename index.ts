@@ -1,6 +1,6 @@
 import type { FileInfo } from "hydrooj";
 import { type Context, DomainModel, ProblemModel, Schema } from "hydrooj";
-import { detect } from "tinyld";
+import { detect } from "tinyld/*";
 
 export function apply(ctx: Context) {
     ctx.addScript<{ domainIds: string[] }>(
@@ -51,15 +51,7 @@ export function apply(ctx: Context) {
                                     url: "file://" + f.name,
                                 }));
 
-                                if (fileLinks.every((link) => pdoc.content.includes(link.url))) {
-                                    continue; // All links already present, skip.
-                                }
-
-                                let content = pdoc.content;
-                                content += `\n\n## ${getTitle(content)}\n`;
-                                for (const link of fileLinks) {
-                                    content += `- [${link.name}](${link.url})\n`;
-                                }
+                                const content = getContentWithFileLinks(pdoc.content, fileLinks);
 
                                 await ProblemModel.edit(domainId, pdoc.docId, { content });
                                 report({
@@ -82,19 +74,69 @@ export function apply(ctx: Context) {
     );
 }
 
-function getTitle(content: string) {
-    const lang = detect(content);
+function getContentWithFileLinks(content: string, fileLinks: { name: string; url: string }[]): string | null {
+    let parsedContent: Record<string, string> | null;
+    try {
+        // Try parsing content as JSON to determine if it's structured data.
+        parsedContent = JSON.parse(content) as Record<string, string>;
+        if (typeof parsedContent !== "object" || Array.isArray(parsedContent)) {
+            parsedContent = null; // Not a JSON object, treat as plain text.
+        }
+    } catch {
+        parsedContent = null;
+    }
+
+    if (parsedContent) {
+        // If content is a JSON object, add file links under a new "additional_files" key.
+        const newContentObj: Record<string, string> = {};
+        let isModified = false;
+        for (const [lang, text] of Object.entries(parsedContent)) {
+            if (fileLinks.every((link) => text.includes(link.url))) {
+                newContentObj[lang] = text;
+                continue;
+            }
+
+            const title = getTitle(lang);
+            const linksMarkdown = fileLinks.map((link) => `- [${link.name}](${link.url})`).join("\n");
+            newContentObj[lang] = `${text}\n\n## ${title}\n${linksMarkdown}\n`;
+            isModified = true;
+        }
+        return isModified ? JSON.stringify(newContentObj) : null;
+    } else {
+        if (fileLinks.every((link) => content.includes(link.url))) {
+            return null;
+        }
+
+        let lang: string;
+        try {
+            lang = detect(content) || "zh";
+        } catch {
+            lang = "zh";
+        }
+
+        const title = getTitle(lang);
+        const linksMarkdown = fileLinks.map((link) => `- [${link.name}](${link.url})`).join("\n");
+        content += `\n\n## ${title}\n${linksMarkdown}\n`;
+        content += +"\n";
+
+        return content;
+    }
+}
+
+function getTitle(lang: string) {
     switch (lang) {
-        case "zh":
-        case "cn":
-            return "附加文件";
         case "ja":
         case "jp":
             return "追加ファイル";
         case "ko":
             return "추가 파일";
         case "en":
-        default:
             return "Additional Files";
+        case "zh_TW":
+            return "附加檔案";
+        case "zh":
+        case "cn":
+        default:
+            return "附加文件";
     }
 }
