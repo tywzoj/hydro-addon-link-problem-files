@@ -1,6 +1,6 @@
 import type { FileInfo } from "hydrooj";
 import { type Context, DomainModel, ProblemModel, Schema } from "hydrooj";
-import { detect } from "tinyld/*";
+import { detect } from "tinyld";
 
 export function apply(ctx: Context) {
     ctx.addScript<{ domainIds: string[] }>(
