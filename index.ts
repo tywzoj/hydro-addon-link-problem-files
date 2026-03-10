@@ -94,7 +94,7 @@ function getContentWithFileLinks(content: string, fileLinks: { name: string; url
         const newContentObj: Record<string, string> = {};
         let isModified = false;
         for (const [lang, text] of Object.entries(parsedContent)) {
-            if (fileLinks.every((link) => text.includes(link.url))) {
+            if (fileLinks.some((link) => text.includes(link.url))) {
                 newContentObj[lang] = text;
                 continue;
             }
@@ -106,7 +106,7 @@ function getContentWithFileLinks(content: string, fileLinks: { name: string; url
         }
         return isModified ? JSON.stringify(newContentObj) : null;
     } else {
-        if (fileLinks.every((link) => content.includes(link.url))) {
+        if (fileLinks.some((link) => content.includes(link.url))) {
             return null;
         }
 
