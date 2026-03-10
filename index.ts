@@ -38,7 +38,7 @@ export function apply(ctx: Context) {
                         try {
                             let additionalFiles: FileInfo[];
                             if (pdoc.reference) {
-                                const original = await ProblemModel.get(pdoc.domainId, pdoc.reference.pid, [
+                                const original = await ProblemModel.get(pdoc.reference.domainId, pdoc.reference.pid, [
                                     "additional_file",
                                 ]);
                                 additionalFiles = original?.additional_file ?? [];
