@@ -68,7 +68,7 @@ export function apply(ctx: Context) {
                             }
                         } catch (error) {
                             report({ message: `Error processing problem ${pdoc.pid} in domain ${domainId}` });
-                            report({ message: (error as Error).message });
+                            report({ message: `${(error as Error).message}\n${(error as Error).stack}` });
                         }
                     }
                 }
