@@ -59,6 +59,9 @@ export function apply(ctx: Context) {
                                 }
 
                                 await ProblemModel.edit(domainId, pdoc.docId, { content });
+                                report({
+                                    message: `Updated problem ${pdoc.pid} in domain ${domainId} with additional file links.`,
+                                });
                             }
                         } catch (error) {
                             report({ message: `Error processing problem ${pdoc.pid} in domain ${domainId}` });
