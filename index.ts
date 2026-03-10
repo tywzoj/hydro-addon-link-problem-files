@@ -48,7 +48,7 @@ export function apply(ctx: Context) {
                             if (additionalFiles.length > 0) {
                                 const fileLinks = additionalFiles.map((f) => ({
                                     name: f.name,
-                                    url: "file://" + f.name,
+                                    url: "file://" + encodeURIComponent(f.name),
                                 }));
 
                                 const content = getContentWithFileLinks(pdoc.content, fileLinks);
@@ -120,7 +120,6 @@ function getContentWithFileLinks(content: string, fileLinks: { name: string; url
         const title = getTitle(lang);
         const linksMarkdown = fileLinks.map((link) => `- [${link.name}](${link.url})`).join("\n");
         content += `\n\n## ${title}\n${linksMarkdown}\n`;
-        content += +"\n";
 
         return content;
     }
