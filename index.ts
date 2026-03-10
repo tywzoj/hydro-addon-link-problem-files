@@ -3,14 +3,21 @@ import { type Context, DomainModel, ProblemModel, Schema } from "hydrooj";
 import { detect } from "tinyld/*";
 
 export function apply(ctx: Context) {
-    ctx.addScript(
+    ctx.addScript<{ domainIds: string[] }>(
         "linkProblemFileToContent",
         "Insert links to problem files into problem content for contests and homeworks.",
-        Schema.object({}),
-        async (_, report: (data: any) => void) => {
-            const ddocs = await DomainModel.getMulti().toArray();
-            for (const ddoc of ddocs) {
-                const domainId = ddoc._id;
+        Schema.object({
+            domainIds: Schema.array(Schema.string()).default(["system"]),
+        }),
+        async (args, report: (data: any) => void) => {
+            const domainIds =
+                args.domainIds.length > 0
+                    ? args.domainIds
+                    : await DomainModel.getMulti()
+                          .map((ddoc) => ddoc._id)
+                          .toArray();
+
+            for (const domainId of domainIds) {
                 const pCount = await ProblemModel.count(domainId, {});
                 const pageSize = 100;
                 const pageCount = Math.ceil(pCount / pageSize);
