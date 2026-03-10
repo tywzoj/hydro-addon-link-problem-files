@@ -53,6 +53,9 @@ export function apply(ctx: Context) {
 
                                 const content = getContentWithFileLinks(pdoc.content, fileLinks);
 
+                                // If content is null, it means no update is needed.
+                                if (!content) continue;
+
                                 await ProblemModel.edit(domainId, pdoc.docId, { content });
                                 report({
                                     message: `Updated problem ${pdoc.pid} in domain ${domainId} with additional file links.`,
