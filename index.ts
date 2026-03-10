@@ -27,6 +27,7 @@ export function apply(ctx: Context) {
                         "docId",
                         "additional_file",
                         "content",
+                        "reference",
                     ])
                         .sort({ pid: 1 })
                         .skip(page * pageSize)
