@@ -4,7 +4,7 @@
   "main": "index.ts",
   "repository": "https://github.com/tywzoj/hydro-addon-link-problem-files.git",
   "author": "Antares <antares.mi@outlook.com>",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "packageManager": "yarn@1.22.22",
   "dependencies": {
     "tinyld": "^1.3.4"
